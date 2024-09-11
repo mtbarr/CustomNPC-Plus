@@ -29,6 +29,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientEventHandler {
+
+    private static Class<?> renderPlayerJBRA;
+
+    static {
+        try {
+            renderPlayerJBRA = Class.forName("JinRyuu.JBRA.RenderPlayerJBRA");
+        } catch (ClassNotFoundException e) {
+            renderPlayerJBRA = null;
+        }
+    }
+
+
+
     public static final RenderCNPCPlayer renderCNPCSelf = new RenderCNPCPlayer();
     public static final RenderCNPCPlayer renderCNPCPlayer = new RenderCNPCPlayer();
     public static HashMap<Integer,Long> disabledButtonTimes = new HashMap<>();
@@ -212,17 +225,15 @@ public class ClientEventHandler {
 
     @SubscribeEvent
     public void tryRenderDBC(RenderPlayerEvent.Specials.Post event) {
-        if (hasOverlays(event.entityPlayer)) {
-            try {
-                Class<?> renderPlayerJBRA = Class.forName("JinRyuu.JBRA.RenderPlayerJBRA");
-                if (!renderPlayerJBRA.isInstance(event.renderer))
-                    return;
-            } catch (ClassNotFoundException ignored) {
-                return;
-            }
-
-            renderCNPCPlayer.renderDBCModel(event);
+        if (renderPlayerJBRA == null || !hasOverlays(event.entityPlayer)) {
+            return;
         }
+
+        if (!renderPlayerJBRA.isInstance(event.renderer)) {
+            return;
+        }
+
+        renderCNPCPlayer.renderDBCModel(event);
     }
 
     public static boolean hasOverlays(EntityPlayer player) {
